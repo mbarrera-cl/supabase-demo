@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
+import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate(); // redirige tras login
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí podrías hacer una petición a una API
-    console.log('Email:', email);
-    console.log('Password:', password);
+    setErrorMsg('');
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setErrorMsg('Credenciales incorrectas o usuario no registrado.');
+      console.error('Login error:', error.message);
+    } else {
+      navigate('/pacientes'); // o cualquier ruta privada
+    }
   };
 
   return (
@@ -49,8 +63,14 @@ function Login() {
             <button type="submit" className="btn btn-primary">Ingresar</button>
           </div>
         </form>
+
+        {errorMsg && (
+          <div className="text-red-600 text-sm text-center mt-2">{errorMsg}</div>
+        )}
+
         <p className="text-center text-sm">
-          ¿No tienes una cuenta? <a href="#" className="link link-hover text-primary">Regístrate</a>
+          ¿No tienes una cuenta?{' '}
+          <a href="#" className="link link-hover text-primary">Regístrate</a>
         </p>
       </div>
     </div>

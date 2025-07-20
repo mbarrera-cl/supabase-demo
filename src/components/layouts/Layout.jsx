@@ -1,6 +1,31 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Navigate, Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../supabaseClient';
 
 export default function Layout() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+      setLoading(false);
+    };
+
+    getSession();
+  }, []);
+
+  const handleLogout = async () => {
+    
+    await supabase.auth.signOut();
+    navigate('/login', { replace: true });
+  };
+
+  if (loading) return <div className="p-6">Cargando sesión...</div>;
+  if (!session) return <Navigate to="/login" replace />;
+
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
@@ -20,12 +45,16 @@ export default function Layout() {
         <header className="bg-white shadow p-4 flex items-center justify-between">
           <span className="text-xl font-semibold">Panel Principal</span>
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Dra. Martínez</span>
-            <button className="text-sm text-blue-600 hover:underline">Cerrar sesión</button>
+            <span className="text-gray-700">{session.user.email}</span>
+     <button
+        onClick={handleLogout}
+        className="btn btn-sm btn-outline btn-error"
+      >
+        Cerrar sesión
+      </button>
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="p-6">
           <div className="bg-white rounded-lg shadow p-6">
             <Outlet />

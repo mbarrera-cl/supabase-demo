@@ -1,17 +1,22 @@
 import { Routes, Route } from 'react-router-dom';
 import Login from '../components/login/Login';
-import Layout from "../components/layouts/Layout";
+import Layout from '../components/layouts/Layout';
 import PatientsPage from '../components/formulario/PatientsPage';
+import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* Pública */}
+      <Route path="/login" element={<Login />} />
 
-     <Route element={<Layout />}>
-        <Route path="/registrar" element={<PatientsPage />} />
+      {/* Rutas protegidas, gestionadas por el router */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/pacientes" element={<PatientsPage />} />
+          {/* más rutas seguras aquí */}
+        </Route>
       </Route>
-
     </Routes>
   );
 }
